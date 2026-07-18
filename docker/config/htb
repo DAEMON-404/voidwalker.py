@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# htb — in-container HackTheBox VPN + workflow helper.
+#
+# The HTB VPN runs INSIDE this container (Docker Desktop for Mac can't bridge
+# --network host to the LAN), which is why the container needs NET_ADMIN and
+# /dev/net/tun. Drop your .ovpn files in ./vpn on the host (mounted read-only
+# at /root/vpn) and:
+#
+#   htb up lab.ovpn        start the VPN (backgrounded), wait for tun0
+#   htb down               stop the VPN
+#   htb ip | status        show tun0 address + route + state
+#   htb ping <target>      reachability check through the tunnel
+#   htb ls                 list available .ovpn files
+set -eu
+
+VPN_DIR="${HTB_VPN_DIR:-/root/vpn}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/htb"
+PIDFILE="$STATE_DIR/openvpn.pid"
+LOGFILE="$STATE_DIR/openvpn.log"
+mkdir -p "$STATE_DIR"
+
+c_ok=$'\033[38;2;156;207;216m'; c_warn=$'\033[38;2;246;193;119m'
+c_err=$'\033[38;2;235;111;146m'; c_z=$'\033[0m'
+ok()   { printf "%s[+]%s %s\n" "$c_ok" "$c_z" "$*"; }
+warn() { printf "%s[!]%s %s\n" "$c_warn" "$c_z" "$*" >&2; }
+die()  { printf "%s[-]%s %s\n" "$c_err" "$c_z" "$*" >&2; exit 1; }
+
+tun_ip() { ip -4 -br addr show tun0 2>/dev/null | awk '{print $3}' | cut -d/ -f1; }
+
+resolve_conf() {
+    _f=$1
+    [ -f "$_f" ] && { printf '%s' "$_f"; return; }
+    [ -f "$VPN_DIR/$_f" ] && { printf '%s' "$VPN_DIR/$_f"; return; }
+    case "$_f" in *.ovpn) ;; *) [ -f "$VPN_DIR/$_f.ovpn" ] && { printf '%s' "$VPN_DIR/$_f.ovpn"; return; } ;; esac
+    return 1
+}
+
+ensure_tun() {
+    [ -c /dev/net/tun ] && return 0
+    mkdir -p /dev/net
+    mknod /dev/net/tun c 10 200 2>/dev/null || die "no /dev/net/tun — run with --device /dev/net/tun --cap-add NET_ADMIN"
+    chmod 600 /dev/net/tun
+}
+
+cmd_up() {
+    [ $# -ge 1 ] || die "usage: htb up <file.ovpn>   (see: htb ls)"
+    conf=$(resolve_conf "$1") || die "config not found: $1  (looked in $VPN_DIR)"
+    ensure_tun
+    if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+        warn "VPN already running (pid $(cat "$PIDFILE")). 'htb down' first."; return 1
+    fi
+    ok "starting openvpn: $conf"
+    openvpn --config "$conf" --daemon --writepid "$PIDFILE" \
+            --log "$LOGFILE" --script-security 2 || die "openvpn failed to launch (see $LOGFILE)"
+    printf 'waiting for tun0'
+    for _ in $(seq 1 30); do
+        [ -n "$(tun_ip)" ] && { printf '\n'; ok "tun0 up: $(tun_ip)"; return 0; }
+        printf '.'; sleep 1
+    done
+    printf '\n'; warn "tun0 not up after 30s — tail of $LOGFILE:"; tail -n 15 "$LOGFILE" >&2; return 1
+}
+
+cmd_down() {
+    if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+        kill "$(cat "$PIDFILE")" && ok "VPN stopped"
+    else
+        pkill -x openvpn 2>/dev/null && ok "VPN stopped (by name)" || warn "no VPN running"
+    fi
+    rm -f "$PIDFILE"
+}
+
+cmd_status() {
+    ipv=$(tun_ip)
+    if [ -n "$ipv" ]; then
+        ok "tun0: $ipv"
+        ip -4 route show dev tun0 2>/dev/null | sed 's/^/    route: /'
+    else
+        warn "no tun0 — VPN down. 'htb up <file.ovpn>'"
+    fi
+}
+
+case "${1:-help}" in
+    up)              shift; cmd_up "$@" ;;
+    down|stop)       cmd_down ;;
+    ip|status)       cmd_status ;;
+    ping)            shift; [ $# -ge 1 ] || die "usage: htb ping <target>"; ping -c3 "$1" ;;
+    ls|list)         ls -1 "$VPN_DIR" 2>/dev/null || warn "no files in $VPN_DIR (mount ./vpn)" ;;
+    help|-h|--help)  sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//' ;;
+    *)               die "unknown command: $1  (try: htb help)" ;;
+esac

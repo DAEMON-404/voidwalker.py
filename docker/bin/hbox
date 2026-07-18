@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# hbox — host-side control for the HTB Kali box (wraps docker compose).
+# Works from any directory; resolves the compose file next to itself.
+#
+#   hbox build            build the image (first run ~20-40 min)
+#   hbox rebuild          rebuild with --no-cache
+#   hbox up               start the box (detached)
+#   hbox shell            attach a tmux session inside the box  (main entry)
+#   hbox zsh              plain login shell inside the box
+#   hbox vpn up lab.ovpn  run the in-container VPN helper (any `htb` args)
+#   hbox verify           smoke-test that key tools are present in the box
+#   hbox stop | down      stop / remove the container (named volumes kept)
+#   hbox status | logs    ps / follow logs
+#   hbox save [file]      export the image to a .tgz for another machine
+#   hbox load [file]      import an image .tgz
+#   hbox push <registry>  tag + push the image to a registry
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$HERE/.." && pwd)"          # the docker/ dir (compose project root)
+cd "$PROJECT_DIR"                               # so ./work and ./vpn binds resolve here
+[ -f .env ] && set -a && . ./.env && set +a
+IMAGE="${IMAGE_TAG:-htb-kali:latest}"
+SVC=htb
+DC=(docker compose)
+
+need_docker() {
+    docker info >/dev/null 2>&1 || {
+        echo "Docker daemon not reachable. Start Docker Desktop, then retry." >&2
+        exit 1
+    }
+}
+ensure_up() { need_docker; "${DC[@]}" ps --status running --services 2>/dev/null | grep -qx "$SVC" || "${DC[@]}" up -d; }
+
+case "${1:-help}" in
+    build)     need_docker; shift; "${DC[@]}" build "$@" ;;
+    rebuild)   need_docker; "${DC[@]}" build --no-cache ;;
+    up)        need_docker; "${DC[@]}" up -d ;;
+    shell)     ensure_up; "${DC[@]}" exec "$SVC" tmux new -A -s htb ;;
+    zsh|sh)    ensure_up; "${DC[@]}" exec "$SVC" zsh -l ;;
+    vpn)       ensure_up; shift; "${DC[@]}" exec "$SVC" htb "$@" ;;
+    exec|run)  ensure_up; shift; "${DC[@]}" exec "$SVC" "$@" ;;
+    verify)    ensure_up; "${DC[@]}" exec "$SVC" bash -lc '
+                 missing=0;
+                 echo "== core tools ==";
+                 for t in nmap ffuf nxc impacket-secretsdump sqlmap hydra john hashcat \
+                          gobuster feroxbuster nikto wpscan responder smbclient \
+                          linpeas pspy chisel kerbrute proxychains4 openvpn tmux zsh; do
+                   if command -v "$t" >/dev/null 2>&1; then
+                     printf "  ok   %s\n" "$t";
+                   else
+                     printf "  MISS %s\n" "$t"; missing=$((missing + 1));
+                   fi;
+                 done;
+                 echo "== voidwalker / pe ==";
+                 voidwalker --version 2>/dev/null || { echo "  MISS voidwalker"; missing=$((missing + 1)); };
+                 if command -v pe >/dev/null; then
+                   echo "  ok   pe ($(readlink -f "$(command -v pe)"))";
+                 else
+                   echo "  MISS pe"; missing=$((missing + 1));
+                 fi;
+                 echo "== wordlists ==";
+                 if [ -f /usr/share/wordlists/rockyou.txt ]; then
+                   echo "  ok   rockyou.txt";
+                 else
+                   echo "  MISS rockyou.txt"; missing=$((missing + 1));
+                 fi;
+                 [ "$missing" -eq 0 ] || { echo "verify failed: $missing item(s) missing" >&2; exit 1; };
+               ' ;;
+    stop)      need_docker; "${DC[@]}" stop ;;
+    down)      need_docker; "${DC[@]}" down ;;
+    status|ps) need_docker; "${DC[@]}" ps ;;
+    logs)      need_docker; "${DC[@]}" logs -f ;;
+    save)      need_docker; out="${2:-htb-kali.tgz}"; echo "saving $IMAGE -> $out"; docker save "$IMAGE" | gzip > "$out"; echo done ;;
+    load)      need_docker; in="${2:-htb-kali.tgz}"; docker load -i "$in" ;;
+    push)      need_docker; [ $# -ge 2 ] || { echo "usage: hbox push <registry/name:tag>" >&2; exit 1; }
+               docker tag "$IMAGE" "$2" && docker push "$2" ;;
+    help|-h|--help) sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//' ;;
+    *)         echo "unknown command: $1 (try: hbox help)" >&2; exit 1 ;;
+esac

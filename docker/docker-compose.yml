@@ -1,0 +1,42 @@
+# HTB Kali box — one headless service you exec into.
+# Managed via docker/bin/hbox, or directly with `docker compose`.
+name: htb
+services:
+  htb:
+    build:
+      context: ..                     # repo root, so the voidwalker package is in scope
+      dockerfile: docker/Dockerfile
+      args:
+        KALI_IMAGE: ${KALI_IMAGE:-kalilinux/kali-rolling}
+    image: ${IMAGE_TAG:-htb-kali:latest}
+    container_name: htb-kali
+    hostname: htb-kali
+    init: true
+
+    # The HTB VPN runs INSIDE the container (Docker Desktop for Mac can't bridge
+    # the Mac LAN via --network host), so openvpn needs these two:
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun      # if your Docker can't provide this, comment it
+                                       # out — the entrypoint recreates it with NET_ADMIN.
+
+    # Reach Burp/Wireshark running natively on macOS at host.docker.internal.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    volumes:
+      - ./work:/root/htb                                  # per-box work (newbox/scan write here)
+      - ./vpn:/root/vpn:ro                                # your .ovpn files (read-only)
+      - htb-pe-data:/root/.local/share/pentest-env        # encrypted flags/creds DB + backups
+      - htb-state:/root/.local/state                      # pe key, zsh history, VPN/runtime state
+
+    # Idle so the box stays up; `hbox shell` reattaches tmux while it is running.
+    # Tmux panes/processes are not serialized to the persistent state volume.
+    command: ["sleep", "infinity"]
+    stdin_open: true
+    tty: true
+
+volumes:
+  htb-pe-data:
+  htb-state:

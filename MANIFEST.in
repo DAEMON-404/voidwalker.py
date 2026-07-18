@@ -1,0 +1,9 @@
+include LICENSE
+include README.md
+include BUILD_GUIDE.md
+
+# Vendored integration engines driven by VoidWalker (pimpmykali + pentest-env).
+recursive-include voidwalker/integrations/assets *
+
+global-exclude __pycache__/*
+global-exclude *.py[cod]

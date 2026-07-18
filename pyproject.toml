@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voidwalker"
+description = "Elite penetration-testing arsenal builder & workspace manager (multi-OS / multi-arch)"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+keywords = ["pentest", "red-team", "security", "arsenal", "htb", "arm64", "aarch64"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Environment :: Console",
+    "Topic :: Security",
+]
+# Pure standard-library: no runtime dependencies.
+dependencies = []
+dynamic = ["version"]
+
+[project.scripts]
+voidwalker = "voidwalker.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/daemon-404/voidwalker.py"
+
+[tool.setuptools.dynamic]
+version = { attr = "voidwalker.version.__version__" }
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["voidwalker*"]
+
+# Ship the vendored integration engines (pimpmykali + pentest-env) as package
+# data so `pip install .` carries the shell payloads VoidWalker drives.
+[tool.setuptools.package-data]
+"voidwalker.integrations" = ["assets/**/*", "assets/**/.*"]

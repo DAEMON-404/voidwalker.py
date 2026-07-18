@@ -1,0 +1,874 @@
+# Revision 1.8.1b - Updated Ghidra Download function
+  - corrected download
+
+# Revision 1.8.1a - Added Andrew B's IoT and Hardware Hacking Course Setup 
+  - Menu option Y or y
+    - stand alone function
+    - installs dependencies sigrok xxd zlib1g-dev liblzma-dev liblzo2-dev
+    - clone sasquatch to /opt/sasquatch
+    - patches sasquatch with M1-Kali.patch.txt
+    - builds patched sasquatch
+    - installs to /usr/local/bin/sasquatch
+    - calls fix_ghidra function to install ghidra from github
+    - installs ghidra dark theme to /opt/ghidra-dark-theme
+  - updated fix_ghidra function to always pull latest release
+
+# Revision 1.8.1 - Ghidra
+  - Menu option G - Install Ghidra
+    - Included in menu options 0, N and 1
+    - removes ghidra installed from apt repository
+    - downloads and installs ghidra from github
+    - ghidra dark-theme added to /opt/ghidra-dark-theme
+
+# Revision 1.8.0 - Added Alex T's C# 101 for Hackers Course Setup
+  - Menu Option Z
+    - installs vscode
+    - installs vscode course extensions
+      - C# Dev Kit (microsoft)
+      - C# Extensions (JosKreativ)
+      - VSCode Solutions Explorer (Fernando Escolar)
+      - Jupyter (microsoft)
+      - Polyglot Notebooks (microsoft)
+      - Material Icon Theme (Philipp Kief) 
+    - installs dotnet, aspnetcore, dotnet-runtime
+    - adds DOTNET_ROOT and PATH= statements to $HOME/.nameofshellrc
+    - status screen at end of install with version information
+
+# Revision 1.7.9a6 - docker-compose / docker.io
+  - Enabled menu option 7 for Fix DockerCompose
+  - fix_dockercompose is included in options 0 (fix_all), N (new setup) or 1 (fix_missing)
+  - New function added fix_dockercompose lines 253 to 330
+    - check if docker-compose is installed if not install latest from github
+    - if docker-compose is installed will version check system vs github and install newer version
+      - case statement exit code handling
+  - Consolidated docker-compose and docker.io installations in updated functions 
+    - hacking_api_prereq
+    - map_prereq
+    - pbb_lab_setup
+    - peh_weblab_setup
+      - now uses fix_dockercompose function to install docker-compose and docker.io
+  - revision notes 1.7.9 to 1.7.9a3 moved to changelog.txt
+  - Readme.md updated for Menu option 7
+
+# Revision 1.7.9a5 - curl --w 
+  - Thanks Alek, updated curl from --w to -w 
+    - functions small_speedtest, large_speedetest
+
+# Revision 1.7.9a4 - updated fix_linwinpeas function
+  - Thanks lbalmaceda! for the updated url and code submission
+  - corrected url for Lin/WinPeas
+  - updated function to always pull latest release  
+
+# Revision 1.7.9a3 - updated functions
+  - updated fix_sources function
+    - includes non-free and non-free-firmware
+  - updated gen_new_sources in Pimpmykali-Mirrors menu option =
+    - includes non-free and non-free-firmware
+
+# Revision 1.7.9a2 - updated exit_screen function
+  - function modified to re-source logged in user ~/nameofshellrc 
+
+# Revision 1.7.9a1 - netexec
+  - updated installation to use pipx 
+  - created new function to ensure symlinks are created
+  - created new function for user and root installations
+  - menu option U or u to install netexec 
+  - is also included in menu option N, 0 or 1 
+
+# Revision 1.7.9a - netexec (nxc)
+  - menu option U or u to install netexec 
+  - is also included in menu options N, 0 or 1
+
+# Revision 1.7.9 - crackmapexec
+  - corrected pathing of symlinks created in $HOME/.local/bin
+
+# Revision 1.7.8 - Pimpmykali-Mirrors
+  - correction/update to current url for mirrorlist
+
+# Revision 1.7.7 - Practical Bugbounty course added
+  - installs course labs to ~/pbb/bugbounty
+  - creates ~/pbb/bugbounty/start-pbb-labs.sh startup script 
+  - script resets the database on each startup
+  - creates ~/pbb/bugbounty/cleanup-pbb-labs.sh this will all docker containers
+
+# Revision 1.7.6a - updated cme installer 
+  - correct to git clone of the repo 
+  
+# Revision 1.7.6 - menu option % has been restored 
+  - git clone url updated
+  - revisions 1.7.3x and older moved to changelog.txt 
+
+# Revision 1.7.5 - removed menu option % 
+  - mpgn's github page is now 404 status, installer will need rework  
+
+# Revision 1.7.4h - updated pipx installer for fix_cme 
+  - updated function to install pipx from apt 
+
+# Revision 1.7.4g - updated path statement for fix_cme
+  - corrected path statement for fix_cme user function
+
+# Revision 1.7.4f - ssh wide compatibility function 
+  - added function fix_sshwidecompat
+  - will be ran in menu options N, 0 or 1 
+
+# Revision 1.7.4e - updated fix_cme function with fix_cme_symlinks
+  - added additional function to create symlinks in ~/.local/bin for cme 6.x.x
+
+# Revision 1.7.4d - updated PEH Course WebApp Labs
+  - added fix for permission denied issues in the lab
+
+# Revision 1.7.4c - added cme and cmedb for crackmapexec 6.x installation
+  - downloads and installs cme and cmedb using pipx
+  - installations for both user and root 
+
+# Revision 1.7.4b - updated nessus download function
+  - function should now automatically grep the version number of Nessus and download
+  - moved amd64 and arm64 variables into their respective functions
+
+# Revision 1.7.4a - added chisel 
+  - chisel added to menu options 0, N or 1 
+
+# Revision 1.7.4 - Winpeas update
+  - script will now pull winpeas from the 20230419-b6aac9cb release, April 2023
+  - workaround for current issue of winpeas not being self contained
+
+# Revision 1.7.3a - update to start-peh-labs.sh
+  - included function in script to reset databases on startup
+
+# Revision 1.7.3 - PEH Web Lab update 
+  - Major Milestone! 2000+ Lines of code! 
+  - added installation for Practical Ethical Hacker WebApp Labs
+  - menu option E 
+  - added ~/peh/labs/start-peh-labs.sh startup script 
+  - added ~/peh/labs/cleanup-peh-labs.sh cleanup script 
+  - all revision 1.6.x announcements moved to changelog.txt 
+
+# Revision 1.7.2 - Hacking API Lab update 
+  - added creation of start-api-hacking.sh 
+  - this is to help mitigate issues with unhealthy containers
+
+# Revision 1.7.1d - Tracelabs Osint VM
+  - added detection of the tracelabs osint vm and prevent the script from 
+    running if specific conditions are met, this is due to python incompatibility
+    with some tooling in the tracelabs osint vm.   
+
+# Revision 1.7.1c - added proxychains and sshuttle
+  - proxychains and sshuttle will be installed via menu options 0, N, or 1   
+
+# Revision 1.7.1b - updated lin/winpeas function 
+  - releases are now being dynamically checked for most current
+  - url in script should now never need updating 
+
+# Revision 1.7.1a - updates
+  - google-chrome-stable changed to pull .deb from google
+  - added installation for Neo4j
+  - added installation for Bloodhound  
+
+# Revision 1.7.1 - added download function for all the peas
+  - current linpeas release downloaded to /opt/linpeas
+  - current winpeas release downloaded to /opt/winpeas
+  - standalone menu function P or p 
+  - included in menu functions N, 0 and 1 
+
+# Revision 1.7.0 - MobSF
+  - MAPT Course setup, Menu option A 
+   - mobsf installation has been changed to a docker installation
+   - /usr/bin/mobsf-docker script created and made executable 
+
+# Revision 1.6.9a - changed google-chrome installation source
+  - is now installed from the kali repo google-chrome-stable 
+
+# Revision 1.6.9 - fix_impacket restored
+  - menu options N, 0 and 1 are fully operational   
+
+# Revision 1.6.8 - fix_impacket function temporarily commented out
+  - affecting menu options N, 0 and 1 
+  - issues with kali2023.2 
+
+# Revision 1.6.7 - Added installer and Uninstaller for Nessus
+  - menu option @ to install nessus
+  - menu option $ to nuke nessus 
+
+# Revision 1.6.6 - Hacking API Course setup 
+  - added Practical API Hacking Course setup (amd64 and arm64), menu option O
+  - Instructor Alex Olsen https://academy.tcm-sec.com/p/hacking-apis
+  - menu options rearranged in stand alone functions
+
+# Revision 1.6.5 - impacket
+  - added --user to impacket 0.9.19 install
+
+# Revision 1.6.4 - minor code cleanup 
+
+# Revision 1.6.3 - mitm6 installation
+  - mitm6 moved from a python2 to python3 installation
+  - added --breaks-system-packages to get around pip related issues 
+  - liblibc symlink correction added at the end of this function
+  
+# Revision 1.6.2 - FixSSH Removed
+  - use kali-tweaks 2023.1.3 to resolve the issue with ssh -i and hydra out of memory
+
+# Revision 1.6.1 - $pyver variable
+  - removed single quotes
+
+# Revision 1.6.0 - Atom removed + misc fixes/updates
+  - Corrected the non-interactive shell being opened for:
+    - Menu option K - Reconfigure Keyboard 
+    - Menu option T - Reconfigure Timezone
+    - shell is now interactive and functions properly
+
+  - Added $archtype variable for potential upcoming arm64 specific support ( Mac m1, rasberry pi, etc )
+  - Added $pyver variable for detection of version of python3
+    - corrects error with installing python'$pyver'-venv and other various python required installations
+
+  - Atom 
+    - has been deprecated/sunset and the installation of atom has been removed
+    - menu option 7 - Install atom removed 
+
+  - Seclists
+    - changed seclists to be pulled from github, to be more verbose about what is taking place on screen
+
+  - gowitness function updated to detect amd64 or arm64 installations, still installs from github
+
+  - httprobe, assetfinder, amass are now installed from the kali repo instead of github
+
+  - Misc Fixes 
+    - corrected if statement on line 1240 MPP Course Setup
+    - added function for apt_fixbroken and apt_fixbroken_complete
+    - removed functions: fix_bloodhound, ask_python39, fix_python39, fix_resopnder 
+    - addded -o Dpkg::Progress-Fancy="1" to all apt operations for fancy progress bars
+    - moved virt-what to be installed much earlier in the script 
+    - general code cleanup
+
+  - Menu option B restored to BlindPenTesters - TheEssentials
+  - older revision history moved to changelog.txt
+
+# Revision 1.5.9 - gowitness update 
+  - due to a new line error, pimpmykali is now hardcoded to pull gowitness 2.4.1
+    until the new line error in gowitness 2.4.2 is resolved. 
+
+# Revision 1.5.8 - fixed-http-shellshock.nse 
+  - updated script to obtain file from pimpmykali github
+
+# Revision 1.5.7 - Fix SSH Function 
+  - Menu option letter O Only (is not included in N, 0 or 1 at this time)
+  - added function to set ssh to wide compatibility mode
+  - file created : /etc/ssh/ssh_config.d/kali-wide-compat.conf
+  - resolves issues with ssh -i id_rsa and various other legacy ciphers
+
+# Revision 1.5.6b - restart-vm-tools
+  - restart-vm-tools removed from check_vm function
+
+# Revision 1.5.6a - fix_assetfinder function
+  - Thank you m4ul3r for finding this!
+  - Not all wget statements were being eval'd
+    - all wgets are now eval'd
+
+# Revision 1.5.5 - Fix Responder Re-Enabled
+  - Downgrade Responder (R) Function updated
+    - ask_python39 function added: prompt before proceeding
+    - fix_python39 function
+      - if python3.10 is found :
+      - installs python3.9-full and python3.9-dbg
+      - resymlinks /bin/python3.9 to /bin/python3
+      - if python3.10 not found proceeds with responder downgrade
+
+  - New Menu item P - Fix Python3.9 (no prompt)
+    - will install python3.9-full and python3.9-dbg
+    - no prompt will be asked in this function
+
+# Revision 1.5.4 - Qemu update
+  - removed xserver-xorg-video-qxl is no longer in the kali repo
+  - updated function to install qemu-guest-agent
+  - revision history 1.5.0 -> 1.5.3 moved to changelog.txt
+   - thank you m4ul3r!
+
+# Revision 1.5.3 - Sublime Installation updated
+  - fix provided by aashiksamuel, thank you!
+  - function sublime_install lines 768->780 updated 
+
+# Revision 1.5.2 - Python Requests
+  - specified specific version of requests to use 2.2.1
+
+# Revision 1.5.1 - Downgrade Metasploit - Disabled
+  - ruby has been upgraded to a default of 3.0
+    - msf5 requires ruby 2.8 or lower
+  - Downgrade msf5 function has been disabled
+    - Menu option D - Downgrade to msf5 Disabled
+    - Menu option M - MPP Course, removed downgrade to msf5 function
+
+# Revision 1.5.0 - fix_bloodhound function update
+  - removed hold on bloodhound at the start of the function to remove
+    an additional complication that was being created
+
+# Revision 1.4.9 - added assetfinder, added neo4j
+  - added assetfinder precompiled binary to the following
+    - Menu option 0
+    - Menu Option 1
+    - Menu Option N
+  - neo4j added in functions
+    - Menu Option B - Downgrade Bloodhound
+    - Menu Option 1 - Fix Missing
+    - Menu Option 0 - Fix All (runs 1-8)
+    - Menu Option N - New VM Setup (runs 1-9 + a few other functions)
+
+# Revision 1.4.8 - minor change to Menu option 9
+  - added fix_libwacom function to be called before fix_upgrade
+
+# Revision 1.4.7 - Downgrade Responder to 3.0.6.0
+  - Menu option R - Downgrades responder to v3.0.6.0
+    - is only called from menu option r or R
+    - uninstalls current responder, downloads and installs v3.0.6.0
+  - PPA Course requirements removed
+
+# Revision 1.4.6 - Bloodhound v4.1.0 incompatible collectors
+  - Menu Option B - Downgrade Bloodhound from 4.1.0 to 4.0.3
+    - is only called from Menu option B
+    - removes bloodhound, purges bloodhound
+    - downloads and installs bloodhound 4.0.3
+    - marks bloodhound package to prevent future upgrading
+  - revision history for 1.4.1 -> 1.4.4 moved to changelog.txt
+
+# Revision 1.4.5 - libwacom-common breaks apt
+  - Kali 2022.1 libwacom9 requires libwacom-common
+    - added to fix_missing function so it will be automatically installed
+    - menu options 0, 1 or N will apply this fix
+    - Credit: TheMadHuman  for bringing it to my attention
+
+
+# Revision 1.4.4 - Impacket 0.9.19 url updated
+  - URL Updated for changes on the SecureAuth github location for Impacket 0.9.19
+    (Thank you !Sora)
+
+# Revision 1.4.3 - MAPT Course pre-requirements + mobSF
+  - install all pre-reqs in kali for the MAPT Course
+  - git clone and install MobSF to /opt
+
+# Revision 1.4.2 - fix_go_path function update
+  - update to findrealuser variable :
+    - check for display 0 (:0) if found get user from display 0 tty login
+    - if display 0 (:0) is not found, get user from tty login
+  - revision history 1.4.0 moved to changelog.txt
+
+# Revision 1.4.1 - PPA Course Prerequisites
+  - Menu Option P has changed option now installs pre-req the PPA Course
+    - installs whois and bind9-dnsutils
+    - git clones spoofpoint to /opt/spoofpoint
+    - creates symlink for /opt/spoofpoint/spoofpoint in /usr/bin/spoofpoint
+      - spoofpoint now available globally via path
+  - Disable power management function moved to fix_missing function
+    - will be applied in options 0 1 or N
+  - revision history 1.3.9 moved to changelog.txt
+
+# Revision 1.4.0 - httprobe added
+  - added fix_httprobe to fix_missing function
+    - checks for /usr/bin/httprobe if not installed install it via kali repo
+  - function will be called via menu options
+    - 1 - fix missing
+    - 0 - fix all ( only runs 1 thru 8 )
+    - N - new vm setup
+    - H - standalone function
+  - added menu option H only this fix will be applied
+
+# Revision 1.3.9 - Kali 2021.4 Update
+  - creates symlink linking /bin/python2.7 to /bin/python
+  - python is python2.7
+  - python3 is python3.x
+  - pip is for python2.7 , pip3 is for python3.x
+    - function will be applied via menu options :
+      - 1 fix missing
+      - 0 fix all (runs only 1 thru 8)
+      - N New VM Setup
+      - ! Nuke Impacket
+  - pimpmykali-mirrors function update
+    - relaxed grep and sed to be more inclusive
+  - revision history 1.3.5 - 1.3.8 moved to changelog.txt
+
+# Revision 1.3.8 - Added dbus-x11
+  - Common issue with gedit added dbus-x11
+  - Menu options N, 0 and 1 will install dbus-x11
+
+# Revision 1.3.7 - Birthday Message Removed
+  - No code changes only birthday message was removed
+
+# Revision 1.3.6 - HAPPY BIRTHDAY PIMPMYKALI!!!!
+  - One year ago today, Pimpmykali was published to Github!!!
+  - Birthday message added to menu
+
+# Revision 1.3.5 - Pimpmykali-Mirrors Update
+  - grep and sed were too restrictive and have been updated
+  - now fully dynamic and less restrictive with mirror paths
+    - Thank you Alek for bringing this to my attention!
+  - added apt update at the end of pimpmykali-mirrors to update with the new mirror
+  - added loop for any other key pressed other than Y or N
+  - revision history for 1.3.2, 1.3.3 and 1.3.4 moved to changelog.txt
+
+# Revision 1.3.4 - amassf
+  - amass added precompiled binary
+    - Menu options N, 0 or 1 will install amass
+
+# Revision 1.3.3 - pyftpdlib
+  - pyftpdlib added for python
+    - Menu options N, 0 or 1 will install pyftpdlib
+
+# Revision 1.3.2 - Pimpmykali-Mirrors and updates
+  - Speedtest for kali linux repo mirrors (http only at this time)
+  - This function will only be executed via menu option =
+  - menu option = Pimpmykali-Mirrors (Yes it is literally the = (equals character)
+    - obtain kali mirror list and process
+      - round-trip-time ping test to all mirrors, select top 10 with shortest rtt
+      - small download >1MB from the top 10 mirrors, select top 5 fastest transfers
+      - large download 10MB test the final 5 mirrors, select fastest transfer
+    - generate new /etc/apt/sources.list with the new selected mirror
+      - prompt Y or N to write new changes to /etc/apt/sources.list
+        - Y writes changes /etc/apt/sources.list
+        - create backup of original sources.list in /etc/apt/sources.list_date_time
+        - write new deb and deb-src lines with new mirror to /etc/apt/sources.list
+        - N exits and makes no change to /etc/apt/sources.list
+  - added --mirrors for command line use sudo./pimpmykali.sh --mirrors
+
+  - new menu option T - reconfigure timezone (new function)
+    - calls sudo dpkg-reconfigure tzdata
+
+  - new menu option K - reconfigure keyboard, language, layout (new function)
+    - calls sudo dpkg-reconfigure keyboard-configuration
+
+  - menu option 6 - enable root login
+     - password prompt now checks exit code if failure, restart password function
+     - copy of files from /home/kali/* to /root now uses the actual username not just 'kali'
+
+  - menu option L - Sublime text editor
+    - installs sublime text editor
+
+  - functions updated: fix_smbconf fix_grub and fix_sources
+    - function updated to use sed -i instead of prior method
+
+  - Menu clean up, added bold color to "New VM Setup" Menu option N
+
+  - Added Sublime text editor installer - Menu Option L
+
+  - install_atom function
+    - removed quiet switches to avoid confusion
+
+  - python2 deprecation warnings - disabled
+
+  - Alphabetically sorted Main Menu - Stand Alone Functions
+
+  - Revision History for 1.3.1 and 1.3.0 moved to changelog.txt
+
+  - Yes, this really was just 1 update to pimpmykali
+  - Minor code cleanup
+
+# Revision 1.3.1 - Minor code cleanup
+  - Minor code cleanup
+
+# Revision 1.3.0 - TheMayor's Movement, Pivoting and Persistance course requirements for kali linux added
+  - This is a stand alone function and is not called by any other part of Pimpmykali
+  - Menu option M - setup for Mayors Movement, Pivoting and Persistance course
+    - installs covenant and all additional required packages
+    - downgrades msf to v5 ( auto-magic it is not going to ask about it )
+    - creates startup script for covenant /usr/local/bin/startcovenant.sh
+      - script checks if covenant is already running, if it is, kill covenant and start
+      - otherwise just start covenant
+    - startcovent.sh script is symlinked to /usr/local/bin/covenant for easy startup
+    - command line to start covenant is 'covenant' from anywhere as it is in the /usr/local/bin path
+    - creates desktop icon for "Start Covenant"
+      - final desktop icon for "Start Covenant" has not been finalized and may change without notice
+  - Added environment variable to remove restart services on apt upgrade, will now default to this setting
+  - Special Note:
+  - Pimpmykali has been stored in the github arctic vault! (dont ask for updates in 1000 years)
+
+# Revision 1.2.9
+  - Bug fix : Aksheet ( https://github.com/Aksheet10 ) Thank you!
+    - no revision change, minor fix no major impacket on Pimpmykali (pun intended)
+    - an apt -y remove impacket was still being called in options 5 and !
+      - removed line
+  - Code contribution pswalia2u!! Thank you!
+    - visit pswalia2u's github at https://github.com/pswalia2u
+    - Disable Gnome Power Management
+  - New Menu option P - Power management disable (standalone function)
+  - rewrite of disable power management functions
+    - new function disable_power_checkde
+      - check which desktop environment is running (xfce, gnome)
+      - disable power management for that environment
+    - new function disable_power_gnome (pswalia2u)
+    - disable_power_xfce replaces the following functions
+      - functions fix_xfce_user fix_xfce_root fix_xfce_power removed
+  - new function fix_hushlogin
+    - check for .hushlogin if file does not exist, create .hushlogin
+  - revision 1.2.8 history moved to changelog.txt
+  - code contributors section added to readme.md
+
+Revision 1.2.8 - Kali 2021.2 Updates
+  - Changed installation for VSCode to use code-oss from repo
+  - Virtualbox guest-os-tools were being installed twice - fixed
+  - Added check for atom, if already installed, skip installation
+  - misc minor fixes / cosmetic fixes
+  -
+  - Complete revision history has been moved to changelog.txt
+    - clean up the readme.md page
+    - Most recent update will always be displayed in readme.md (this page)
+    - Screenshot added to readme.md
+
+Revision 1.2.7 - Virtualbox Guest ISO Downloaded from virtualbox.org
+  - Virtualbox Guest OS Tools Only :
+   - An issue has arisen that the Kali repo has the incorrect version of the
+   - virtualbox guest os tools, function has been rewritten to always pull the
+   - most current version from download.virtualbox.org/LATEST directly not the kali repo
+
+Revision 1.2.6 - GoWitness Binary - Installed
+  - Gowitness Precompiled binary is downloaded and installed to /usr/bin/gowitness
+    - checks for google-chrome installation, if not installed, install it
+    - installs gowitness precompiled binary to /usr/bin/gowitness
+
+Revision 1.2.5 - Downgrade MSF to 5 re-enabled
+  - Downgrade from MSF 6 to 5 has been re-enabled
+    - due to a recent (somewhat odd) demand to re-enable the downgrade
+    - function has been re-enabled. Menu Option D only
+
+Revision 1.2.4 - added common missing items
+  - Added to menu options : 1 - Fix Missing, 0 - Fix All, and N - new vm setup
+    - install gcc-mingw-w64-x86-64-win32
+    - install libssl-dev
+    - install set
+  - Resolved an issue with vscode installer menu option v or V
+
+Revision 1.2.3 - fix_broken_xfce
+  - only_upgrade function modified
+      - function virt_what was called to early in only_upgrade
+    - fix_broken_xfce function is no longer necessary as of Kali 2021.1
+    - fix_broken_xfce removed from all script processing
+    - fix_broken_xfce has been moved to stand alone function
+      - not called by any other part of the script except (menu F)
+  - fix_broken_xfce (menu F)
+      - left as a stand alone function as a fail-safe for older versions of Kali
+      - fix_broken_xfce code and function will be removed completely at a future date
+  - fix_upgrade function modified
+    - virt_what function was called before run_update
+    - virt_what function moved, now called after run_update
+  - apt_update function added, now gives on screen display of running process function
+  - apt_upgrade function added, now gives on screen display of running process function
+  - apt_autoremove function added, now gives on screen display of running process function
+
+
+Revision 1.2.2 - A number of changes / updates
+  - Added Menu option C added - Install Google-Chrome (gowitness dependancy)
+  - Added google-chrome to fix_missing which will be activated by
+    - menu option 1 fix missing
+    - menu option 0 fix all
+    - menu option N new vm setup
+  - /etc/apt/sources.list function rewritten
+    - function will now only search for a specific line in sources.list
+    - "#deb-src http://http.kali.org/kali kali-rolling main contrib non-free" or
+    - "deb-src http://http.kali.org/kali kali-rolling main contrib non-free"
+    - if found, script will sed out the and enable deb-src
+    - no other modifications are made to sources.list
+  - Downgrade Metasploit function has been removed - Menu option D
+  - virt-what function upgraded, check added for already existing
+  - enable root login prompt moved in the script should appear sooner during execution
+
+Revision 1.2.1 - Menu Option N Modified
+  - minor code cleanup, no major changes.
+
+Revision 1.2.0 - Menu Option N Modified
+ - Kali 2021.1 + MSF-6.0.30-DEV have been released live in the Kali Repo
+ - Downgrade Metasploit has been removed from menu option N
+ - Downgrade Metasploit is now only available via menu option D
+ - Minor code cleanup
+
+Revision 1.1.9 - Gedit Connection Refused
+  - added fix for gedit as root connection refused
+  - Fix will be installed via :
+    - 1 - Fix Missing
+    - 0 - Fix All
+    - N - New VM Setup
+  - Menu item G to apply only this fix
+
+Revision 1.1.8 - Quality of life improvements
+  - Added install for theharvester
+  - xfce power management is now disabled
+    - fix_xfcepower fix_xfce_root fix_xfce_user
+      - will also be executed in menu option F - Fix Icons
+  - pc speaker beep now disabled /etc/modprobe.d/nobeep.conf
+    - silence_pcbeep
+  - Items will be installed via the following :
+    - 1 - Fix Missing
+    - 0 - Fix All (Runs only options 1 thru 8)
+    - N - New VM Setup
+  - Updated Readme.md documentation for menu items S, F
+  - Minor updates for a few prompts
+
+Revision 1.1.7 - libguestfs-tools cifs-utils added
+  - libguestfs-tools added to fix_missing
+  - cifs-utils added to fix_missing
+  - Items will be installed via the following :
+    - 1 - Fix Missing
+    - 0 - Fix All (Runs only options 1 thru 8)
+    - N - New VM Setup
+
+Revision 1.1.6 - update to curl get-pip.py
+  - script has been updated to point directly to the python2.7 get-pip.py
+
+Revision 1.1.5 - Fix SPIKE
+  - menu option S to apply this fix only
+  - fix_spike will be applied thru the following menu options automatically
+    - 1 - Fix Missing (fix_spike is a part of fix_missing)
+    - 0 - Fix All (Runs only options 1 thru 8)
+    - N - New VM Setup
+  - current version of spike2.9-1kali7 throws undefined symbol error
+  - removes spike2.9-1kali7
+  - installs spike_2.9-1kali6 (reverts spike to prior version)
+  - apt adds hold to spike to prevent accidental future upgrades
+  - apt hold will be removed at a future date once 2.9-1kali7 issues are resolved
+
+Revision 1.1.4 - Fix Broken XFCE Icons
+  - menu option F to apply this fix only
+    - Menu N and 9 will apply fix automatically as a part of their function
+  - restores FileManager (Folder Icon on Taskbar) function
+  - restores TerminalEmulator (Terminal Icon) function
+  - restores "File System" icon on desktop function
+  - restores "Home" icon on desktop function
+
+Revision 1.1.3 - added Are you sure prompt
+  - Added "Are you sure you want to copy all files from /home/kali to /root" prompt
+  - Gives the user a last chance to abort the function
+  - There are no major functional changes between 1.1.2 and 1.1.3 other than the additional
+    prompt to the copy /home/kali to /root function
+  - Answering Y - performs copy function of /home/kali to /root
+  - Answering N - skips copy function and proceeds on to the next section of the script
+
+Revision 1.1.2 - copy /home/kali to /root screen and prompt
+  - 1.1.2 Notes updated to reflect 1.1.3 addition and changes to 1.1.2 function
+  - Recently there have been a number of users wanting to run as root in kali but finding there
+    are no files or directories in /root once the root login is enabled and they login as root.
+
+    This is the default as root was disabled, there is nothing in /root
+
+  - This function ONLY executes If the user selects Yes at the enable root login prompt
+
+  - A second screen and prompt was added to the Enable Root Login function
+    - Prompts the user to copy everything from /home/kali to /root (And we mean everything!)
+    - Answering Y - will prompt user for "Are you sure?" added in 1.1.3
+    - Answering N - will skip the copy and end this function
+  - No file-checking will be performed
+  - Warning: This WILL overwrite anything in /root with the contents of /home/kali if Yes is selected
+  - Function does NOT remove anything from /home/kali
+
+Revision 1.1.1 - quick fix
+  - Quick fix applied to modifiy a specific function that was calling
+  - the exit_screen when it should not have been
+
+Revision 1.1.0 - python module: xlrd added
+  - added pip install xlrd==1.2.0 to fix missing
+  - general code cleanup
+  - Thank you to hackza for testing functions on Mac Vmware Fusion!
+
+Revision 1.0.9 - Qemu/Libvirt Detection added
+  - Thank you m4ul3r! It was his idea and testing that we are able to add this!
+  - detection of "kvm" hypervisor
+  - upon that detection xserver-xorg-video-qxl spice-vdagent are installed
+
+Revision 1.0.8 - New Menu Item n or N
+  - function will run fix_all, fix_missing, downgrade metasploit and pimpmyupgrade
+  - executes menu options 0, D and 9 from a single menu item.
+  - On-screen Menu display has been reworked and cleaned up a bit
+  - This saves the user from running menu 0, then running D then running 9 individually.
+
+Revision 1.0.7 - GOPATH statements added to .zshrc and .bashrc
+  - function will check for GOPATH in .zshrc and .bashrc
+  - Checks added for root and regular users
+  - if "GOPATH" is not found in .zshrc or .bashrc, statements will be added:
+    - export GOPATH=$HOME/go
+    - export PATH=$PATH:$GOPATH/bin
+  - if "GOPATH" is found in .zshrc or .bashrc, no changes will be made
+  - Menu Options 0 (Fix All), 1 (Fix Missing) or 3 (Fix GoLang) will activate this function
+
+Revision 1.0.6 - theHarvester fix removed
+  - Python3.9.1 has arrived! No longer in Release Candidate status!
+  - theHarvester fix is no longer necessary and has been commented as of this Revision
+  - if no further complications, code will be removed completely
+
+Revision 1.0.5 - Gedit returns!
+  - gedit has been added to fix_all and fix_missing functions
+
+Revision 1.0.4 - fix theHarvester (removed in 1.0.6)
+ - This is only to be used in the following case :
+   - Menu option H and will only be called via menu option H
+   - Kali 2020.4 has been apt upgraded and python3.9 is installed
+   - theHarvester is not functioning and is getting an error on uvloop
+   - this will set python3 to default to python3.9
+   - git clones uvloop, applies fixes and recompiles
+   - git clones theHarvester, applies fixes and installs
+ - additional checks will be added in the future
+
+Revision 1.0.3 - Metasploit 6 to Metasploit 5 Downgrade Option / Apt Upgrade returns!
+  - Menu option D has been added to perform the downgrade
+    - will not be called by any other function
+    - only menu option D will execute the downgrade
+    - metasploit will complain about 2 versions of reline being installed but do not believe it is an issue
+    - places a hold on metasploit-framework so it will not be upgraded in the future
+  - Pimpmyupgrade menu option 9
+    - set as a stand alone function, and will not be called from any other function in the script
+    - apt upgrade will only be called from this function
+    - mark metasploit-framework to be ignored in the upgrade process
+    - perform apt upgrade without upgrading metasploit-framework
+    - unmark metasploit-framework from being held back
+  - Fix All menu option 0 (modified)
+    - now only runs menu options 1 thru 8 , does not include menu 9 (pimpmyupgrade)
+
+Revision 1.0.2 - Apt Upgrade Commented Out
+  - Due to Metasploit being upgraded from msf5 -> MSF6
+    apt upgrade has been commented out and will NOT be run
+    at this time.
+
+Revision 1.0.1 Python-Requests
+  - added python requests and colorama installations to fix_missing (menu option 1) and (menu option 0) fix_all
+
+Revision 1.0.0 Atom replaces Gedit
+  - pimpmykali has reached a state of consistency and stability in the function it performs
+    version is being bumped to v1.0.0 to be more in line with version numbering standards.
+  - Atom has replaced gedit, gedit will no longer be installed by pimpmykali
+
+Revision 0.5j - rockyou.txt.gz
+  - added fix_rockyou function
+  - added gzip -dq /usr/share/wordlists/rockyou.txt.gz
+   - fix_missing and fix_all both call this function
+  - added restart-vm-tools as a part of menu 9 pimpmyupgrade
+  - added fix for bad apt hash issue (automatically applied)
+  - revision is going to be bumped to v1.0.0 upon next release
+
+Revision 0.5i - virtualbox specific fixes
+   - virtualbox-guest-addditions-iso added to check_vm as a part of fix_upgrade
+   - VBoxLinuxAdditions.run execution added to check_vm as a part of fix_upgrade
+   - '/sbin/rcvboxadd quicksetup all' added to check_vm as a part of fix_upgrade
+
+Revision 0.5h
+   - minor code cleanup
+   - 2nd warning screen of nuke impacket has been disabled and will no longer show
+   - removed --borked from main menu system as the ! menu item is now available
+   - added htop to fix_missing
+
+Revision 0.5g
+   - minor updates
+   - moved wait_time, finduser and groups to global vars from local vars
+   - general cleanup of script, comments, etc
+   - 2nd warning screen of nuke impacket has been disabled and will no longer show
+
+Revision 0.5f
+   - flameshot, gedit and seclists have been removed from fix_missing and
+   - now will only be a part of fix_all or as an individual Option for installation
+   - only command line switches with -- are now valid all others have been removed
+   - all revision history except for the most 3 recent have been removed from the script
+   - full revision history can be found here in REAME.md
+
+Revision 0.5e
+   - Nuke Impacket added to menu, enter character ! to run nuke impacket
+   - issues with people understanding how to use --borked on the command line
+     a menu option of character ! was added to ease use of the nuke impacket function.
+     the command:  sudo ./pimpmykali.sh --bored   was used to call the nuke-impacket
+     function now thanks to a new menu item of ! it can be called from the menu system
+     directly without the need for command line switches, but the switch is still available
+   - command line switches with a single - or just the name have been removed all command line
+     switches are now --nameofswtich as per the --help system indicates
+
+Revision 0.5d
+   - bugfix Thank you to @AES ! for finding the bug, nmap wget script was pulling the wrong page
+   - correct page has been added new version git pushd
+   - unfortunatly versions 0.5c thru 0.4 are affected if you have an old version
+     or havent ran pimpmykali.sh please git clone a fresh copy and re-run the nmap from the menu
+     Menu Option 8 - Fix clamav-exec.nse
+   - corrected http-shellshock.nse nmap script added - Thank you Alek & Blob!
+
+Revision 0.5c
+   - fix_upgrade removed from fix_missing
+   - fix_upgrade removed from fix_missing and is no longer 'forced' as a part of fix_missing
+   - fix_upgrade will now only be called as a part of fix_all (menu 0) or fix_upgrade (menu 9)
+     or command line switches --upgrade -upgrade or upgrade
+   - general code cleanup, some additional comments added
+
+Revision 0.5b - The Essentials
+   - Blindpentesters Essential Collection added
+   - added Blindpentesters 'The Essentials' tools and utils collection
+   - menu option 'B' for blindpentesters tools collection, installs, runs the_essentials.sh and exits
+
+Revision 0.5a
+  - minor cosmetic fixes to pimpmyupgrade functions
+
+Revision 0.5
+   - pimpmyupgrade added
+   - fix_sources deb-src is not enabled in /etc/apt/sources.list - fixed
+   - linux-headers-(uname -r) are not installed - fixed
+   - new functions check_vm, virt_what, run_update are what comprise pimpmyupgrade
+   - virt_what determines if vm is under virtualbox or vmware
+   - check_vm checks for virtualbox or vmware and installs proper drivers for each
+   - run_update runs fix_sources, runs apt upgrade calls virt_what, calls check_vm
+
+Revision 0.4b
+   - minor updates
+   - reworked fix_section works much better now
+   - added slient 'mode' variable, uncomment silent= line to turn output on and off from apt etc
+   - misc cleanup in the script
+
+Revision 0.4a
+   - 2nd warning screen added for --borked impacket removal system
+   - If you cant have a little fun with your own scripts your doing something wrong....
+   - last chance warning screen ( mostly novelty ), random launch code generation on each run of --borked
+   - list of target selection, targets locked, etc
+   - seriously if you made it to --borked 2nd warning your having a bad day with impacket.. enjoy the giggle
+   - 10 second wait timer added to last chance launch screen before operations are performed
+   - if no ctrl+c is entered to cancel the operation, fix_sead is run, followed by fix_impacket
+   - added apt -y reinstall python3-impacket impacket-scripts to fix error with smbmap after impacket removal
+
+Revision 0.4
+   - Major Update for impacket removal
+   - added flameshot as a part of the missing group to be installed
+   - added clamav-exec.nse wget to fix clamav-exec.nse failed during nmap --script vuln scans
+   - new commandline switch of --borked has been implemented for removal of impacket across various locations
+   - added --borked notice to menu system, help system
+   - added warning screen for --borked, only input of Y will proceed anything else exits
+   - fix_sead_warning, fix_sead_run, fix_impacket_array, fix_impacket all executed in order with --borked
+     - fix_sead_run removes any and all directories named impacket* in the following locations (you have been warned):
+        /opt /usr/bin /usr/local/lib /usr/lib /home/$finduser/.local/bin /home/$finduser/.local/lib ~/.local/lib ~/.local/bin
+      - fix_sead_run, also removes via fix_impacket_array any .py or .pyc related to impacket in the following:
+        /usr/bin/$impacket_file /usr/local/bin/$impacket_file
+         (root)~/.local/bin/$impacket_file
+         (user)/home/$finduser/.local/bin/$impacket_file
+
+Revision 0.3d
+  - added flameshot to fix_missing as a part of the default installed tools
+  - emergency fix to --force, everything should be functioning now
+
+Revision 0.3c
+  - per request kali-root-login enabling prompt has been reworked and reworded to be less confusing and
+    to give the user a better explanation of what the script is doing at that stage
+  - added to note that if you dont understand what this part of the script is doing hit N
+  - added colors for syntax highlighting in the onscreen messages of the script in places
+  - added fix_nmap function for fixing /usr/share/nmap/scripts/clamav-exec.nse (commented out at this time
+    clamav-exec.nse was an issue at one time but unknown if it is still relevent)
+  - --force command line argument was being called without setting $force in fix_all $force - fixed
+
+Revision 0.3b
+  - bug fix impacket installation was missing cd /opt/impacket-0.9.19
+  - feature request added : Gedit installation menu option 7, is included in fix_missing, all and force
+  - remove clear from exit screen
+
+Revision 0.3a
+- the extraction of the impacket-0.9.19.tar.gz was leaving /opt/impacket-0.9.19 with 700 perms
+  and an ownership of 503:root, this has been changed to ownership root:root and all files inside
+  /opt/impacket-0.9.19 have had their permissions set to 755 after extraction of impacket-0.9.19.tar.gz
+- Ascii art added to the menu
+
+Revision 0.3
+- added checks for already installed installations, added --force command ( --force will run all fixes/reinstalls )
+- fix_impacket function : added both .py and .pyc files to impacket removal array
+  - added on screen notification of files being removed by the array
+- fix_missing function  : has been reworked new vars check section force type
+  - added fix_section function : fix_section is the workhorse for fix_missing
+- reworked python-pip installation to its own function python-pip-curl and installs python-pip via curl
+
+Revision 0.2
+- Added colorized notifications, help system, command line arguments, case based menu system
+- valid command line arguments are: help, all, go, grub, impacket, missing, menu, smb, grub, root
+- anything other than --all or -all or all , will only run that function and then exit.
+- command line arguments can be used with -- or - or just the word itself to try can catch for all possible cases
+- example command line var: --help or -help or help will catch help and works for all valid command line arguments
+  anything other the command line arugement catch exits and displays help

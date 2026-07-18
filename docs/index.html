@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoidWalker — usage & the Kali Docker box</title>
+<meta name="description" content="How to use VoidWalker, the penetration-testing arsenal builder, and its headless Kali Docker box for HackTheBox.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   VoidWalker guide — Rose Pine Dawn (light) with cyberpunk insets.
+   Palette: Dawn surface + neon accents; embedded dark RP terminals.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --base:#faf4ed; --surface:#fffaf3; --overlay:#f2e9e1;
+  --hl-low:#f4ede8; --hl-med:#dfdad9; --hl-high:#cecacd;
+  --muted:#9893a5; --subtle:#797593; --text:#575279;
+  --love:#b4637a; --gold:#ea9d34; --rose:#d7827e;
+  --pine:#286983; --foam:#56949f; --iris:#907aa9;
+
+  /* dark terminal (Rose Pine main) */
+  --t-base:#191724; --t-surface:#1f1d2e; --t-overlay:#26233a;
+  --t-text:#e0def4; --t-muted:#6e6a86; --t-subtle:#908caa;
+  --t-iris:#c4a7e7; --t-love:#eb6f92; --t-foam:#9ccfd8;
+  --t-gold:#f6c177; --t-pine:#31748f; --t-rose:#ebbcba;
+
+  --grad:linear-gradient(100deg,var(--iris),var(--love) 55%,var(--foam));
+  --f-display:"Chakra Petch",system-ui,sans-serif;
+  --f-body:"Space Grotesk",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --edge:1px solid var(--hl-high);
+  --shadow:0 1px 0 var(--surface),0 18px 40px -24px rgba(87,82,121,.45);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0; background:var(--base); color:var(--text);
+  font-family:var(--f-body); font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  /* faint cyber grid + top glow, all in-palette so it stays quiet */
+  background-image:
+    radial-gradient(60% 45% at 78% -8%, rgba(144,122,169,.16), transparent 60%),
+    radial-gradient(50% 40% at 5% 4%, rgba(86,148,159,.12), transparent 60%),
+    linear-gradient(var(--hl-med) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hl-med) 1px, transparent 1px);
+  background-size:auto,auto,44px 44px,44px 44px;
+  background-position:0 0,0 0,-1px -1px,-1px -1px;
+}
+/* ambient scanline overlay */
+.scan{position:fixed; inset:0; pointer-events:none; z-index:60; mix-blend-mode:multiply; opacity:.5;
+  background:repeating-linear-gradient(0deg, rgba(87,82,121,.05) 0 1px, transparent 1px 3px);}
+@media (prefers-reduced-motion:no-preference){
+  .scan{animation:scan 8s linear infinite; background-size:100% 6px;}
+  @keyframes scan{to{background-position:0 600px}}
+}
+a{color:var(--pine); text-decoration:none}
+a:hover{color:var(--love)}
+:focus-visible{outline:2px solid var(--iris); outline-offset:3px; border-radius:4px}
+
+/* ── nav ─────────────────────────────────────────────── */
+.nav{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:22px;
+  padding:14px clamp(18px,5vw,64px); background:rgba(255,250,243,.82);
+  backdrop-filter:blur(10px); border-bottom:var(--edge);}
+.brand{display:flex; align-items:center; gap:10px; font-family:var(--f-display);
+  font-weight:700; letter-spacing:.14em; color:var(--text); font-size:15px;}
+.brand svg{width:24px; height:24px; filter:drop-shadow(0 0 6px rgba(180,99,122,.5))}
+.nav__links{margin-left:auto; display:flex; gap:6px; flex-wrap:wrap}
+.nav__links a{font-family:var(--f-mono); font-size:12.5px; letter-spacing:.06em;
+  text-transform:lowercase; color:var(--subtle); padding:6px 11px; border-radius:7px; position:relative}
+.nav__links a::after{content:""; position:absolute; left:11px; right:11px; bottom:3px; height:2px;
+  background:var(--grad); transform:scaleX(0); transform-origin:left; transition:transform .25s ease}
+.nav__links a:hover,.nav__links a.active{color:var(--text)}
+.nav__links a.active::after,.nav__links a:hover::after{transform:scaleX(1)}
+
+.wrap{max-width:1120px; margin:0 auto; padding:0 clamp(18px,5vw,40px)}
+
+/* ── hero ────────────────────────────────────────────── */
+.hero{display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(28px,4vw,56px);
+  align-items:center; padding:clamp(48px,7vw,92px) 0 clamp(30px,4vw,52px)}
+.eyebrow{font-family:var(--f-mono); font-size:12.5px; letter-spacing:.24em; text-transform:uppercase;
+  color:var(--love); display:inline-flex; align-items:center; gap:10px; margin:0 0 18px}
+.eyebrow::before{content:""; width:26px; height:2px; background:var(--grad)}
+h1{font-family:var(--f-display); font-weight:700; line-height:.94; margin:0;
+  font-size:clamp(46px,9vw,104px); letter-spacing:.02em; color:var(--text);
+  text-shadow:2px 0 0 rgba(180,99,122,.28), -2px 0 0 rgba(86,148,159,.24);}
+.hero h1 .k{color:transparent; background:var(--grad); -webkit-background-clip:text; background-clip:text}
+@media (prefers-reduced-motion:no-preference){
+  .glitch{cursor:default}
+  .glitch:hover{animation:glitch .32s steps(2,end) 2}
+  @keyframes glitch{
+    0%{text-shadow:2px 0 0 var(--love),-2px 0 0 var(--foam)}
+    50%{text-shadow:-3px 0 0 var(--love),3px 0 0 var(--foam); transform:translateX(1px)}
+    100%{text-shadow:2px 0 0 rgba(180,99,122,.28),-2px 0 0 rgba(86,148,159,.24)}
+  }
+}
+.lede{font-size:clamp(17px,1.7vw,20px); color:var(--subtle); max-width:44ch; margin:22px 0 28px}
+.lede b{color:var(--text); font-weight:600}
+.cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:26px}
+.btn{font-family:var(--f-mono); font-size:14px; letter-spacing:.03em; padding:13px 20px; border-radius:11px;
+  border:1px solid transparent; cursor:pointer; display:inline-flex; align-items:center; gap:9px; transition:.22s}
+.btn--primary{color:var(--surface); background:var(--text);
+  background-image:var(--grad); box-shadow:0 14px 30px -14px rgba(144,122,169,.8)}
+.btn--primary:hover{transform:translateY(-2px); box-shadow:0 20px 38px -14px rgba(180,99,122,.75)}
+.btn--ghost{color:var(--text); background:var(--surface); border-color:var(--hl-high)}
+.btn--ghost:hover{border-color:var(--iris); box-shadow:0 0 0 3px rgba(144,122,169,.14)}
+.arch{display:flex; gap:8px; flex-wrap:wrap; align-items:center; font-family:var(--f-mono); font-size:12px; color:var(--muted)}
+.chip{font-family:var(--f-mono); font-size:12px; padding:4px 10px; border-radius:999px;
+  border:1px solid var(--hl-high); background:var(--surface); color:var(--subtle)}
+.chip--on{border-color:var(--foam); color:var(--pine); box-shadow:0 0 0 3px rgba(86,148,159,.12)}
+
+/* ── terminal (the signature) ────────────────────────── */
+.term{background:var(--t-base); border-radius:14px; overflow:hidden; border:1px solid #322f4a;
+  box-shadow:0 30px 60px -30px rgba(25,23,36,.6), 0 0 0 1px rgba(196,167,231,.08);}
+.term__bar{display:flex; align-items:center; gap:8px; padding:11px 14px; background:var(--t-surface);
+  border-bottom:1px solid #322f4a}
+.dot{width:11px; height:11px; border-radius:50%}
+.dot--love{background:var(--t-love)} .dot--gold{background:var(--t-gold)} .dot--foam{background:var(--t-foam)}
+.term__name{margin-left:8px; font-family:var(--f-mono); font-size:12px; color:var(--t-muted); letter-spacing:.04em}
+.copy{margin-left:auto; font-family:var(--f-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--t-subtle); background:transparent; border:1px solid #3a3653; border-radius:7px; padding:4px 9px; cursor:pointer; transition:.18s}
+.copy:hover{color:var(--t-foam); border-color:var(--t-foam)}
+.copy.ok{color:var(--t-base); background:var(--t-foam); border-color:var(--t-foam)}
+.term__body{margin:0; padding:16px 18px; overflow-x:auto; background:var(--t-base)}
+.term__body code{font-family:var(--f-mono); font-size:13.5px; line-height:1.9; color:var(--t-text); display:block; white-space:pre}
+/* token colors */
+.c{color:var(--t-muted); font-style:italic}     /* comment */
+.p{color:var(--t-iris)}                          /* prompt  */
+.cmd{color:var(--t-foam)}                         /* command */
+.fl{color:var(--t-gold)}                          /* flag    */
+.str{color:var(--t-rose)}                         /* string  */
+.arg{color:var(--t-text)}
+.key{color:var(--t-love)}                         /* keyword/menu num */
+.cur{display:inline-block; width:9px; height:1.05em; background:var(--t-foam); vertical-align:-2px}
+@media (prefers-reduced-motion:no-preference){.cur{animation:blink 1.05s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}}
+
+/* ── sections ────────────────────────────────────────── */
+.sec{padding:clamp(46px,6vw,80px) 0; border-top:var(--edge)}
+.sec__head{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:30px}
+.sec__ey{font-family:var(--f-mono); font-size:13px; letter-spacing:.2em; text-transform:uppercase; color:var(--iris)}
+.sec__ey::before{content:"// "; color:var(--muted)}
+.sec h2{font-family:var(--f-display); font-weight:600; font-size:clamp(27px,4vw,42px); margin:0; letter-spacing:.01em; color:var(--text)}
+.sec__sub{color:var(--subtle); max-width:60ch; margin:0 0 6px}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+.grid-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(272px,1fr)); gap:16px}
+.note{margin-top:18px; font-family:var(--f-mono); font-size:13px; color:var(--subtle);
+  border-left:2px solid var(--gold); padding:8px 0 8px 14px; background:linear-gradient(90deg,var(--hl-low),transparent)}
+
+/* command deck cards */
+.card{position:relative; background:var(--surface); border:var(--edge); border-radius:13px; padding:18px 18px 16px; box-shadow:var(--shadow); transition:.2s}
+.card:hover{transform:translateY(-3px); border-color:var(--iris)}
+.card::before,.card::after{content:""; position:absolute; width:12px; height:12px; opacity:0; transition:.2s}
+.card::before{top:8px; left:8px; border-top:2px solid var(--love); border-left:2px solid var(--love)}
+.card::after{bottom:8px; right:8px; border-bottom:2px solid var(--foam); border-right:2px solid var(--foam)}
+.card:hover::before,.card:hover::after{opacity:1}
+.card__tag{font-family:var(--f-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--love)}
+.card h3{font-family:var(--f-display); font-weight:600; font-size:19px; margin:6px 0 4px; color:var(--text)}
+.card p{margin:0 0 12px; font-size:14.5px; color:var(--subtle)}
+.card code{display:block; font-family:var(--f-mono); font-size:12.5px; color:var(--t-text);
+  background:var(--t-base); border-radius:8px; padding:9px 11px; overflow-x:auto; white-space:pre}
+.card code .cmd{color:var(--t-foam)} .card code .fl{color:var(--t-gold)} .card code .str{color:var(--t-rose)} .card code .arg{color:var(--t-text)}
+
+/* pe nouns */
+.nouns{display:flex; gap:9px; flex-wrap:wrap; margin-top:18px}
+.noun{font-family:var(--f-mono); font-size:13px; padding:7px 13px; border-radius:9px; background:var(--overlay);
+  border:1px solid var(--hl-high); color:var(--text)}
+.noun b{color:var(--love)}
+
+/* docker steps (a real sequence -> numbered) */
+.steps{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:22px}
+.step{position:relative; background:var(--surface); border:var(--edge); border-radius:13px; padding:18px 18px 8px; box-shadow:var(--shadow)}
+.step__n{font-family:var(--f-display); font-weight:700; font-size:13px; color:var(--surface); background:var(--grad);
+  width:30px; height:30px; border-radius:8px; display:grid; place-items:center; letter-spacing:0}
+.step__hd{display:flex; align-items:center; gap:12px; margin-bottom:12px}
+.step__hd h3{font-family:var(--f-display); font-weight:600; font-size:18px; margin:0; color:var(--text)}
+
+/* persistence table */
+.tbl{width:100%; border-collapse:collapse; font-size:14px; margin-top:6px; background:var(--surface); border:var(--edge); border-radius:12px; overflow:hidden}
+.tbl th,.tbl td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--hl-med)}
+.tbl th{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--iris); background:var(--hl-low)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl code{font-family:var(--f-mono); font-size:12.5px; color:var(--pine)}
+
+/* footer */
+.foot{border-top:var(--edge); padding:40px 0 60px; margin-top:20px}
+.foot__grid{display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; align-items:flex-end}
+.disc{font-family:var(--f-mono); font-size:12.5px; color:var(--subtle); max-width:52ch;
+  border:1px solid var(--hl-high); border-left:3px solid var(--love); border-radius:8px; padding:12px 15px; background:var(--surface)}
+.disc b{color:var(--love)}
+.foot__mark{font-family:var(--f-display); font-weight:700; letter-spacing:.16em; color:var(--text); font-size:18px}
+.foot small{color:var(--muted); font-family:var(--f-mono); font-size:12px}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr; gap:30px}
+  .grid2,.steps{grid-template-columns:1fr}
+  .nav__links{display:none}
+}
+</style>
+</head>
+<body>
+<div class="scan" aria-hidden="true"></div>
+
+<nav class="nav">
+  <span class="brand">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#907aa9"/><stop offset=".55" stop-color="#b4637a"/><stop offset="1" stop-color="#56949f"/></linearGradient></defs><path d="M12 1.6l9.5 5.5v9.4L12 22.4 2.5 16.5V7.1z" stroke="url(#g)" stroke-width="1.6"/><path d="M12 6.5v11M7 9v6M17 9v6" stroke="url(#g)" stroke-width="1.4" stroke-linecap="round"/></svg>
+    VOIDWALKER
+  </span>
+  <div class="nav__links">
+    <a href="#install">install</a>
+    <a href="#deck">command deck</a>
+    <a href="#pe">pe workspace</a>
+    <a href="#docker">kali docker box</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ── HERO ── -->
+  <header class="hero">
+    <div>
+      <p class="eyebrow">red-team arsenal builder</p>
+      <h1 class="glitch">VOID<span class="k">WALKER</span></h1>
+      <p class="lede">Turn a bare macOS or Linux box into a loaded offensive workstation — <b>350+ arch-aware tools</b>, the encrypted <b>pe</b> workspace, a Rose Pine GNOME/XFCE desktop with rollback-safe GNOME settings, and a searchable offline HTML handbook. Now also a <b>headless Kali Docker box</b> for HackTheBox.</p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="#install"><span>&gt;</span> install voidwalker</a>
+        <a class="btn btn--ghost" href="#docker"><span>&gt;</span> run the docker box</a>
+      </div>
+      <div class="arch">
+        <span class="chip chip--on">arm64 · apple silicon</span>
+        <span class="chip">amd64</span>
+        <span class="chip">armv7</span>
+      </div>
+    </div>
+
+    <div class="term" aria-label="VoidWalker interactive menu">
+      <div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">~/voidwalker</span><button class="copy" type="button">copy</button></div>
+      <pre class="term__body"><code><span class="p">$</span> <span class="cmd">python3</span> <span class="arg">voidwalker.py</span><span id="hero-cur" class="cur" aria-hidden="true"></span>
+<span class="c">
+  [1]  Install Full Arsenal (350+ tools)
+  [2]  Select Categories
+  [4]  System Packages (apt/brew)
+  [5]  Install Metasploit
+  [6]  Install AI Code Agents
+  [10] Fix / Harden Kali (pimpmykali)
+  [11] Deploy Pentest Environment (pe)
+  [12] Setup BloodHound-CE
+  [15] View Sources &amp; Guides</span>
+<span class="p">→</span> <span class="arg">select option</span> <span class="c">[1-16]:</span> </code></pre>
+    </div>
+  </header>
+
+  <!-- ── INSTALL ── -->
+  <section class="sec" id="install">
+    <div class="sec__head">
+      <span class="sec__ey">install</span>
+      <h2>Two ways in. uv is the fast one.</h2>
+    </div>
+    <p class="sec__sub">Pure Python standard library — nothing to pip-install to run it. Clone and launch, or let <a href="https://github.com/astral-sh/uv">uv</a> manage an isolated environment.</p>
+
+    <div class="grid2">
+      <div class="term" aria-label="Install with uv">
+        <div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">uv · recommended</span><button class="copy" type="button">copy</button></div>
+        <pre class="term__body"><code><span class="c"># get uv (Linux & macOS, amd64 + arm64)</span>
+<span class="cmd">curl</span> <span class="fl">-LsSf</span> <span class="str">https://astral.sh/uv/install.sh</span> | <span class="cmd">sh</span>
+
+<span class="c"># install the `voidwalker` command globally</span>
+<span class="cmd">uv</span> tool install <span class="arg">.</span>
+<span class="cmd">voidwalker</span> <span class="fl">--dry-run</span>   <span class="c"># per-arch install plan</span>
+<span class="cmd">voidwalker</span> <span class="arg">selftest</span>    <span class="c"># validate the catalog</span></code></pre>
+      </div>
+
+      <div class="term" aria-label="Run from a checkout">
+        <div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">checkout · pip</span><button class="copy" type="button">copy</button></div>
+        <pre class="term__body"><code><span class="cmd">git</span> clone <span class="str">https://github.com/daemon-404/voidwalker.py.git</span>
+<span class="cmd">cd</span> <span class="arg">voidwalker.py</span>
+
+<span class="c"># straight from the checkout — no install</span>
+<span class="cmd">python3</span> <span class="arg">voidwalker.py</span>
+
+<span class="c"># …or install it, then use the command</span>
+<span class="cmd">pip</span> install <span class="arg">.</span> && <span class="cmd">voidwalker</span></code></pre>
+      </div>
+    </div>
+    <p class="note">Architecture-aware: on ARM, tools with no native binary route to a <span style="color:var(--pine)">go/cargo</span> source build instead of grabbing an x86 build that can't run. <code style="color:var(--pine)">voidwalker --dry-run</code> prints the exact plan for your machine.</p>
+  </section>
+
+  <!-- ── COMMAND DECK ── -->
+  <section class="sec" id="deck">
+    <div class="sec__head">
+      <span class="sec__ey">command deck</span>
+      <h2>One CLI, the whole engagement.</h2>
+    </div>
+    <p class="sec__sub">The interactive menu handles installs. These sub-commands run the day-to-day — offline search, Kali fixes, pivoting, and the folded-in toolkits. Global flags (<code style="font-family:var(--f-mono);color:var(--pine)">--theme</code>, <code style="font-family:var(--f-mono);color:var(--pine)">--dry-run</code>) go before the command.</p>
+
+    <div class="grid-cards">
+      <div class="card"><span class="card__tag">search</span><h3>poc</h3><p>Search PoC-in-GitHub for a CVE, offline.</p><code><span class="cmd">voidwalker</span> poc <span class="arg">CVE-2021-44228</span></code></div>
+      <div class="card"><span class="card__tag">search</span><h3>nse</h3><p>Find matching Nmap NSE scripts.</p><code><span class="cmd">voidwalker</span> nse <span class="arg">smb</span></code></div>
+      <div class="card"><span class="card__tag">search</span><h3>exploitdb</h3><p>Query Exploit-DB by keyword.</p><code><span class="cmd">voidwalker</span> exploitdb <span class="arg">wordpress</span></code></div>
+      <div class="card"><span class="card__tag">search</span><h3>dork</h3><p>Interactive Google dork generator.</p><code><span class="cmd">voidwalker</span> <span class="arg">dork</span></code></div>
+      <div class="card"><span class="card__tag">kali</span><h3>kali</h3><p>Fix / harden Kali via pimpmykali.</p><code><span class="cmd">voidwalker</span> kali <span class="fl">--newvm</span></code></div>
+      <div class="card"><span class="card__tag">env</span><h3>env</h3><p>Deploy the pe zsh/tmux environment.</p><code><span class="cmd">voidwalker</span> <span class="arg">env</span></code></div>
+      <div class="card"><span class="card__tag">graph</span><h3>bloodhound</h3><p>Install + start BloodHound-CE.</p><code><span class="cmd">voidwalker</span> <span class="arg">bloodhound</span></code></div>
+      <div class="card"><span class="card__tag">pivot</span><h3>proxy</h3><p>Wire proxychains4 to a SOCKS pivot.</p><code><span class="cmd">voidwalker</span> proxy <span class="arg">127.0.0.1:1080</span></code></div>
+      <div class="card"><span class="card__tag">evidence</span><h3>rec</h3><p>Record a shell / capture screenshots.</p><code><span class="cmd">voidwalker</span> rec shell <span class="arg">HTB-Cap</span></code></div>
+    </div>
+  </section>
+
+  <!-- ── PE WORKSPACE ── -->
+  <section class="sec" id="pe">
+    <div class="sec__head">
+      <span class="sec__ey">pe workspace</span>
+      <h2>An encrypted memory for the box.</h2>
+    </div>
+    <p class="sec__sub">Deploy once with <code style="font-family:var(--f-mono);color:var(--pine)">voidwalker env</code>, then <code style="font-family:var(--f-mono);color:var(--pine)">pe</code> works on its own — a SQLCipher store for flags, creds, hosts and notes, keyed to the active target. The prompt and tmux bar show which box you're on; <code>pe guide</code> opens the offline handbook.</p>
+
+    <div class="grid2">
+      <div class="term" aria-label="pe workspace commands">
+        <div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">pe · encrypted store</span><button class="copy" type="button">copy</button></div>
+        <pre class="term__body"><code><span class="cmd">pe</span> init                       <span class="c"># set a passphrase; create the DB</span>
+<span class="cmd">pe</span> target add <span class="arg">Cap</span> <span class="fl">--ip</span> <span class="arg">10.10.10.245</span>
+<span class="cmd">pe</span> flag add <span class="arg">user</span> <span class="str">'HTB{...}'</span>
+<span class="cmd">pe</span> cred add <span class="fl">-u</span> <span class="arg">svc</span> <span class="fl">-s</span> <span class="str">'S3cr3t!'</span>
+<span class="cmd">pe</span> cheat <span class="arg">env</span>              <span class="c"># how it all fits together</span>
+<span class="cmd">pe</span> backup                     <span class="c"># snapshot the encrypted DB</span></code></pre>
+      </div>
+      <div>
+        <p style="margin:0 0 4px;color:var(--subtle)">Five nouns, the same verbs (<code style="font-family:var(--f-mono);color:var(--pine)">add · ls · show · search · rm</code>):</p>
+        <div class="nouns">
+          <span class="noun"><b>pe target</b> · the box</span>
+          <span class="noun"><b>pe flag</b> · user/root</span>
+          <span class="noun"><b>pe cred</b> · creds &amp; hashes</span>
+          <span class="noun"><b>pe host</b> · hosts &amp; ports</span>
+          <span class="noun"><b>pe note</b> · findings</span>
+        </div>
+        <p class="note" style="border-color:var(--iris)">Shell sugar from the env: <code style="color:var(--pine)">newbox Cap 10.10.10.245</code> registers a target and drops you into <code style="color:var(--pine)">~/htb/Cap</code>; <code style="color:var(--pine)">scan</code> runs a recorded nmap; Ctrl-X&nbsp;f pastes a flag.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── KALI DOCKER BOX ── -->
+  <section class="sec" id="docker">
+    <div class="sec__head">
+      <span class="sec__ey">kali docker box</span>
+      <h2>The Parallels VM, containerised.</h2>
+    </div>
+    <p class="sec__sub">A headless, repeatable Kali box that reuses VoidWalker as its installer and environment. Baked lean HTB arsenal, native host architecture, the VPN running <b>inside</b> the container. Driven by one wrapper: <code style="font-family:var(--f-mono);color:var(--pine)">hbox</code>.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step__hd"><span class="step__n">1</span><h3>Build</h3></div>
+        <div class="term"><div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">host</span><button class="copy" type="button">copy</button></div>
+        <pre class="term__body"><code><span class="cmd">cd</span> docker && <span class="cmd">cp</span> <span class="arg">.env.example .env</span>
+<span class="cmd">./bin/hbox</span> <span class="arg">build</span>   <span class="c"># bakes the arsenal (~20–40m)</span></code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step__hd"><span class="step__n">2</span><h3>Enter</h3></div>
+        <div class="term"><div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">host</span><button class="copy" type="button">copy</button></div>
+        <pre class="term__body"><code><span class="cmd">./bin/hbox</span> <span class="arg">up</span> && <span class="cmd">./bin/hbox</span> <span class="arg">shell</span>
+<span class="c"># tmux session; prefix = C-a or C-b</span></code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step__hd"><span class="step__n">3</span><h3>Connect</h3></div>
+        <div class="term"><div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">host → vpn inside</span><button class="copy" type="button">copy</button></div>
+        <pre class="term__body"><code><span class="c"># drop .ovpn files in docker/vpn/</span>
+<span class="cmd">./bin/hbox</span> vpn up <span class="arg">lab.ovpn</span>
+<span class="cmd">./bin/hbox</span> vpn <span class="arg">status</span></code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step__hd"><span class="step__n">4</span><h3>Verify</h3></div>
+        <div class="term"><div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">inside the box</span><button class="copy" type="button">copy</button></div>
+        <pre class="term__body"><code><span class="cmd">./bin/hbox</span> <span class="arg">verify</span>   <span class="c"># smoke-test tools</span>
+<span class="cmd">pe</span> init; <span class="cmd">newbox</span> <span class="arg">Cap 10.10.10.245</span></code></pre></div>
+      </div>
+    </div>
+
+    <h3 style="font-family:var(--f-display);font-weight:600;color:var(--text);margin:26px 0 10px;font-size:19px">What persists</h3>
+    <p class="sec__sub" style="margin-bottom:12px">Tools are baked into the image by a repeatable build. Your data lives on volumes and survives rebuilds.</p>
+    <table class="tbl">
+      <thead><tr><th>Host / volume</th><th>In container</th><th>Holds</th></tr></thead>
+      <tbody>
+        <tr><td><code>docker/work/</code></td><td><code>/root/htb</code></td><td>per-box workdirs</td></tr>
+        <tr><td><code>docker/vpn/</code></td><td><code>/root/vpn</code> (ro)</td><td>your .ovpn files</td></tr>
+        <tr><td><code>htb-pe-data</code></td><td><code>…/pentest-env</code></td><td>encrypted flags/creds DB</td></tr>
+        <tr><td><code>htb-state</code></td><td><code>/root/.local/state</code></td><td>pe key · zsh history · VPN/runtime state (tmux panes are not persisted)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid2" style="margin-top:22px">
+      <div class="term" aria-label="Portability commands">
+        <div class="term__bar"><span class="dot dot--love"></span><span class="dot dot--gold"></span><span class="dot dot--foam"></span><span class="term__name">run it anywhere</span><button class="copy" type="button">copy</button></div>
+        <pre class="term__body"><code><span class="c"># ship the built image (offline, no rebuild)</span>
+<span class="cmd">./bin/hbox</span> save <span class="arg">htb-kali.tgz</span>
+<span class="cmd">./bin/hbox</span> load <span class="arg">htb-kali.tgz</span>   <span class="c"># on the other machine</span>
+
+<span class="c"># …or push to a registry</span>
+<span class="cmd">./bin/hbox</span> push <span class="arg">ghcr.io/you/htb-kali:latest</span></code></pre>
+      </div>
+      <div>
+        <p class="note" style="margin-top:0;border-color:var(--foam)"><b style="color:var(--pine)">GUI tools:</b> run Burp Suite &amp; Wireshark natively on macOS. Route container HTTP through Burp with <code style="color:var(--pine)">burpenv</code> (sets the proxy to <code style="color:var(--pine)">host.docker.internal:8080</code>), or capture with <code style="color:var(--pine)">tcpdump -w cap.pcap</code> and open it on the Mac.</p>
+        <p class="note" style="border-color:var(--gold)"><b style="color:var(--gold)">macOS note:</b> the HTB VPN runs inside the container because Docker Desktop can't bridge the Mac LAN — that's why the box holds <code style="color:var(--pine)">NET_ADMIN</code> and <code style="color:var(--pine)">/dev/net/tun</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="foot">
+    <div class="foot__grid">
+      <div>
+        <div class="foot__mark">VOID<span style="color:var(--love)">WALKER</span><span class="cur" style="background:var(--love);height:.7em" aria-hidden="true"></span></div>
+        <small>elite pentest arsenal builder · macOS / Linux · x86_64 / arm64 / armv7</small>
+      </div>
+      <p class="disc"><b>Authorized use only.</b> Built for education, authorized security testing, and red-team ops on targets you have explicit permission to test. You own what you run it against.</p>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* copy-to-clipboard: copies the terminal's clean text (spans don't affect textContent) */
+  document.querySelectorAll(".copy").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var term = btn.closest(".term");
+      var code = term && term.querySelector("code");
+      if(!code) return;
+      var text = code.innerText.replace(/​/g,"").replace(/[ \t]+$/gm,"").trim();
+      navigator.clipboard.writeText(text).then(function(){
+        var old = btn.textContent; btn.textContent = "copied ✓"; btn.classList.add("ok");
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove("ok"); }, 1400);
+      }).catch(function(){ btn.textContent = "ctrl+c"; });
+    });
+  });
+
+  /* active nav via scroll position */
+  var links = Array.prototype.slice.call(document.querySelectorAll(".nav__links a"));
+  var map = {};
+  links.forEach(function(a){ var id=a.getAttribute("href").slice(1); var s=document.getElementById(id); if(s) map[id]=a; });
+  if("IntersectionObserver" in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove("active"); });
+          if(map[e.target.id]) map[e.target.id].classList.add("active");
+        }
+      });
+    }, {rootMargin:"-45% 0px -50% 0px"});
+    Object.keys(map).forEach(function(id){ obs.observe(document.getElementById(id)); });
+  }
+
+  /* hero: one-time typing of the launch command, then the cursor rests */
+  var cur = document.getElementById("hero-cur");
+  if(cur && !reduce){
+    var line = cur.previousSibling; // text node after "$ python3 "
+    // retype the argument for a subtle boot feel
+    var target = "voidwalker.py";
+    var host = cur.previousElementSibling; // <span class="arg">
+    if(host && host.classList.contains("arg")){
+      host.textContent = "";
+      var i = 0;
+      (function tick(){
+        if(i <= target.length){ host.textContent = target.slice(0,i); i++; setTimeout(tick, 55); }
+      })();
+    }
+  }
+})();
+</script>
+</body>
+</html>

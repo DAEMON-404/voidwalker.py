@@ -1,0 +1,71 @@
+"""Curated reference links, guides and cheatsheets (non-tool resources)."""
+
+SOURCES_AND_GUIDES = {
+    "Reference Repositories": [
+        ("maldev-links (curated)", "https://github.com/CodeXTF2/maldev-links"),
+        ("RedTeam-Tools (A-poc)", "https://github.com/A-poc/RedTeam-Tools"),
+        ("PayloadsAllTheThings", "https://github.com/swisskyrepo/PayloadsAllTheThings"),
+        ("PentestTools (arch3rPro)", "https://github.com/arch3rPro/PentestTools"),
+        ("atomic-red-team", "https://github.com/redcanaryco/atomic-red-team"),
+        ("HackTricks", "https://book.hacktricks.xyz/"),
+        ("HackTricks-Cloud", "https://cloud.hacktricks.xyz/"),
+        ("LOLBAS Project", "https://lolbas-project.github.io/"),
+        ("GTFOBins", "https://gtfobins.github.io/"),
+        ("WADComs", "https://wadcoms.github.io/"),
+        ("The Hacker Recipes", "https://www.thehacker.recipes/"),
+        ("ired.team notes", "https://www.ired.team/"),
+        ("OSCP-Cheatsheet", "https://github.com/0xsyr0/OSCP"),
+    ],
+    "AD Enumeration & Recon": [
+        ("ldapdomaindump", "https://github.com/dirkjanm/ldapdomaindump"),
+        ("linWinPwn", "https://github.com/lefayjey/linWinPwn"),
+        ("PCredz", "https://github.com/lgandx/PCredz"),
+        ("scavenger", "https://github.com/SpiderLabs/scavenger"),
+        ("adidnsdump", "https://github.com/dirkjanm/adidnsdump"),
+        ("EyeWitness", "https://github.com/RedSiege/EyeWitness"),
+        ("Chimera (PS obfuscator)", "https://github.com/tokyoneon/Chimera"),
+        ("WMIOps", "https://github.com/FortyNorthSecurity/WMIOps"),
+    ],
+    "SCCM Attack Tooling": [
+        ("Misconfiguration-Manager", "https://github.com/subat0mik/Misconfiguration-Manager"),
+        ("sccmhunter", "https://github.com/garrettfoster13/sccmhunter"),
+        ("SharpSCCM", "https://github.com/Mayyhem/SharpSCCM"),
+    ],
+    "Metasploit Modules (ADCS)": [
+        ("esc_update_ldap_object", "https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/admin/ldap/esc_update_ldap_object.rb"),
+        ("ldap_esc_vulnerable_template", "https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/gather/ldap_esc_vulnerable_cert_finder.rb"),
+    ],
+    "Commercial C2 Frameworks": [
+        ("Cobalt Strike", "https://www.cobaltstrike.com/"),
+        ("Nighthawk (MDSec)", "https://www.mdsec.co.uk/nighthawk/"),
+        ("Brute Ratel C4", "https://bruteratel.com/"),
+        ("Pentera", "https://pentera.io/"),
+    ],
+    "Maldev Learning": [
+        ("Maldev Academy (course)", "https://maldevacademy.com/"),
+        ("Maldev Academy Code Search", "https://search.maldevacademy.com/"),
+        ("Malforge Group", "https://malforge-group.in/"),
+        ("oioio-space/maldev (Go lib)", "https://github.com/oioio-space/maldev"),
+        ("0xbekoo/maldev", "https://github.com/0xbekoo/maldev"),
+    ],
+    "Anonymous VPS Providers": [
+        ("RamNode", "https://www.ramnode.com/"),
+        ("NiceVPS", "https://nicevps.net/"),
+        ("Cinfu", "https://www.cinfu.com/"),
+        ("PiVPS", "https://pivps.com/"),
+        ("SecureDragon", "https://securedragon.net/"),
+        ("BitLaunch", "https://bitlaunch.io/"),
+        ("BitHost", "https://bithost.io/"),
+    ],
+    "Chrome / Browser Extraction": [
+        ("ChromeKatz", "https://github.com/Meckazin/ChromeKatz"),
+        ("ChromElevator (ABE Decryption)", "https://github.com/xaitax/Chrome-App-Bound-Encryption-Decryption"),
+        ("chrome_v20_decryption", "https://github.com/runassu/chrome_v20_decryption"),
+        ("chrome_v20_password_dump", "https://github.com/nicehash/chrome_v20_password_dump.py"),
+        ("chrome-bypass (ABE v20 PoC)", "https://github.com/nicehash/chrome-bypass"),
+        ("ChromeDumper", "https://github.com/nicehash/ChromeDumper"),
+        ("HackBrowserData", "https://github.com/moonD4rk/HackBrowserData"),
+        ("ChromePass (NirSoft)", "https://www.nirsoft.net/utils/chromepass.html"),
+    ],
+}
+

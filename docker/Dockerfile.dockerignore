@@ -1,0 +1,18 @@
+# Scoped to docker/Dockerfile (build context = repo root). Keeps the context
+# small and prevents work data / secrets from ever entering the build.
+.git
+**/__pycache__
+**/*.py[cod]
+**/.DS_Store
+build
+dist
+*.egg-info
+.venv
+venv
+uv.lock
+
+# Nothing under docker/ is needed by the build except what it COPYs explicitly.
+docker/work
+docker/vpn
+docker/.env
+attachments

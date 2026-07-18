@@ -1,0 +1,9 @@
+# Runtime data + secrets — never commit these, but keep the empty dirs so the
+# compose bind mounts have a source.
+.env
+*.tgz
+*.tar.gz
+work/*
+vpn/*
+!work/.gitkeep
+!vpn/.gitkeep
